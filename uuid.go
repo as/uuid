@@ -6,18 +6,44 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
+	"sync/atomic"
 )
 
-// V4 returns a UUIDv4 using the default generator. It never returns an error,
-// never panics, and never runs out of entropy.
+const (
+	ng = 4
+	ngmask = ng-1
+)
+var (
+	access [ng]uint32
+	generators [ng]gen
+)
+
+// V4 returns a UUIDv4. It never returns an error, never panics, 
+// and never runs out of entropy.
 func V4() string {
-	return string(<-ch)
+	i := 0 
+	for {
+		if atomic.CompareAndSwapUint32(&access[i], 0, 1){
+			u := generators[i].V4()
+			atomic.StoreUint32(&access[i], 0)
+			return string(u)
+		}
+		i = (i+1) & ngmask
+	}
 }
 
-var defaultGen = newGen()
+
+func init() {
+	for i := range generators {
+		g := newGen()
+		generators[i] = *g
+	}
+}
 
 type gen struct {
+	c [36]byte
 	cipher.BlockMode
+	_ [8]byte
 }
 
 func newGen() *gen {
@@ -37,18 +63,8 @@ func newGen() *gen {
 
 var h = [...]byte{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'}
 
-var ch = func() chan []byte {
-	ch := make(chan []byte, 32)
-	go func() {
-		for {
-			ch <- defaultGen.V4()
-		}
-	}()
-	return ch
-}()
-
 func (g *gen) V4() []byte {
-	var c [36]byte
+	c := g.c[:]
 	g.CryptBlocks(c[:16], c[:16])
 	return append(c[:0],
 		h[c[0]&15], h[c[0]>>4],
