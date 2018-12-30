@@ -32,20 +32,19 @@ func main() {
 - Is it faster than uuid package `X`?
 > see benchmarks
 ```
-go test -bench .
 goos: linux
 goarch: amd64
 pkg: github.com/as/uuid
-BenchmarkV4-4           	10000000	       231 ns/op
-BenchmarkV4Parallel/X2/A-4       	 5000000	       226 ns/op
-BenchmarkV4Parallel/X2/B-4       	10000000	       223 ns/op
-BenchmarkV4Parallel/X5/A-4       	10000000	       223 ns/op
-BenchmarkV4Parallel/X5/B-4       	10000000	       222 ns/op
-BenchmarkV4Parallel/X5/C-4       	10000000	       222 ns/op
-BenchmarkV4Parallel/X5/D-4       	10000000	       220 ns/op
-BenchmarkV4Parallel/X5/E-4       	10000000	       223 ns/op
+BenchmarkV4-4           	10000000	       112 ns/op
+BenchmarkV4Parallel/X2/A-4       	20000000	       109 ns/op
+BenchmarkV4Parallel/X2/B-4       	20000000	       109 ns/op
+BenchmarkV4Parallel/X5/A-4       	20000000	       113 ns/op
+BenchmarkV4Parallel/X5/B-4       	20000000	       109 ns/op
+BenchmarkV4Parallel/X5/C-4       	20000000	       109 ns/op
+BenchmarkV4Parallel/X5/D-4       	20000000	       110 ns/op
+BenchmarkV4Parallel/X5/E-4       	20000000	       109 ns/op
 PASS
-ok  	github.com/as/uuid	24.731s
+ok  	github.com/as/uuid	22.638s
 ```
 
 - Will this generate a bunch of zeroes like some other `uuid` packages?
