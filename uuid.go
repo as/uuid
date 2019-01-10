@@ -10,28 +10,28 @@ import (
 )
 
 const (
-	ng = 4
-	ngmask = ng-1
+	ng     = 4
+	ngmask = ng - 1
 )
+
 var (
-	access [ng]uint32
+	access     [ng]uint32
 	generators [ng]gen
 )
 
-// V4 returns a UUIDv4. It never returns an error, never panics, 
+// V4 returns a UUIDv4. It never returns an error, never panics,
 // and never runs out of entropy.
 func V4() string {
-	i := 0 
+	i := 0
 	for {
-		if atomic.CompareAndSwapUint32(&access[i], 0, 1){
+		if atomic.CompareAndSwapUint32(&access[i], 0, 1) {
 			u := generators[i].V4()
 			atomic.StoreUint32(&access[i], 0)
 			return string(u)
 		}
-		i = (i+1) & ngmask
+		i = (i + 1) & ngmask
 	}
 }
-
 
 func init() {
 	for i := range generators {
