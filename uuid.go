@@ -25,9 +25,9 @@ func V4() string {
 	i := 0
 	for {
 		if atomic.CompareAndSwapUint32(&access[i], 0, 1) {
-			u := generators[i].V4()
+			u := string(generators[i].V4())
 			atomic.StoreUint32(&access[i], 0)
-			return string(u)
+			return u
 		}
 		i = (i + 1) & ngmask
 	}
