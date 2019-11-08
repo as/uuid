@@ -6,12 +6,19 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
+	"errors"
 	"sync/atomic"
 )
 
 const (
 	ng     = 4
 	ngmask = ng - 1
+)
+
+var (
+	ErrLen        = errors.New("uuid: bad length")
+	ErrFormat     = errors.New("uuid: bad format")
+	ErrFieldCount = errors.New("uuid: bad field count")
 )
 
 var (
@@ -31,6 +38,47 @@ func V4() string {
 		}
 		i = (i + 1) & ngmask
 	}
+}
+
+// Valid returns true if and only if the input string looks like a UUID
+// It examines the length, number of dashes, their location, as well
+// as the hexidecimal structure of the input string. For alphanumeric
+// hex characters, both lower and upper case is allowed. It does not
+// check for version bits or any other semantics not mentioned in this
+// comment.
+func Valid(s string) bool {
+	if len(s) != 36 {
+		return false
+	}
+	for _, n := range [...]int{8, 4, 4, 4} {
+		if !acceptRun(s[:n]) {
+			return false // ErrFormat
+		}
+		if s[n] != '-' {
+			return false // ErrFieldCount
+		}
+		s = s[n+1:]
+	}
+	if !acceptRun(s) {
+		return false // ErrFormat
+	}
+	return true
+}
+
+func acceptRun(s string) bool {
+	for _, c := range []byte(s) {
+		if c >= '0' && c <= '9' {
+			continue
+		}
+		if c >= 'a' && c <= 'f' {
+			continue
+		}
+		if c >= 'A' && c <= 'F' {
+			continue
+		}
+		return false
+	}
+	return true
 }
 
 func init() {
