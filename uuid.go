@@ -6,19 +6,12 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
-	"errors"
 	"sync/atomic"
 )
 
 const (
 	ng     = 4
 	ngmask = ng - 1
-)
-
-var (
-	ErrLen        = errors.New("uuid: bad length")
-	ErrFormat     = errors.New("uuid: bad format")
-	ErrFieldCount = errors.New("uuid: bad field count")
 )
 
 var (
