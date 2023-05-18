@@ -19,11 +19,20 @@ var (
 	generators [ng]gen
 )
 
+func init() {
+	if (ng & ngmask) != 0 {
+		panic("uuid: you modified ng to create more gens, but it needs to be a power of 2")
+	}
+}
+
 // V4 returns a UUIDv4. It never returns an error, never panics,
 // and never runs out of entropy.
 func V4() string {
 	i := 0
 	for {
+		// this is a spinlock, nothing starves these generators
+		// enough for anything more elaborate, as V4 completes
+		// in 25-100ns on modern systems
 		if atomic.CompareAndSwapUint32(&access[i], 0, 1) {
 			u := string(generators[i].V4())
 			atomic.StoreUint32(&access[i], 0)
