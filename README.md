@@ -66,6 +66,9 @@ TestProbabilityDistribution
 - What about the gofrs package?
 > That package just makes you check for an error and still reads from /dev/random. This package actually solves the problem at the root.
 
+- How exactly does it work?
+> It initializes an AES block cipher with a random key and random initialization vector. It uses the output of CryptBlocks to build the uuid and then runs the operation again to generate the next random UUID. The output will never repeat, even if the process is restarted.
+
 - I don't trust AES. What if the hard-core predicate of AES doesn't hold?
 > You have bigger things to worry about. Also, most UUID implementations do not require a true random number generator. Especially if your database has a unique constraint, as such an error is much better than a panic in a production service.
 
